@@ -24,19 +24,9 @@ def add_user(db, name, age, major):
                VALUES  (?, ?, ?)''', (name, age, major))
     db.commit()
     
-
 def add_course(db, course_name, instructor):
     db.execute(f'''INSERT INTO courses(course_name, instructor)
                VALUES  (?, ?)''', (course_name, instructor))
-    db.commit()
-
-def add_to_student_course(db, student_id, course_id):
-    db.execute(f'''INSERT INTO student_course(student_id, course_id)
-               VALUES  (?, ?)''', (student_id, course_id))
-    db.commit()
-
-def edit_student(db, student_id, name, age, major):
-    db.execute("UPDATE students SET name = ?, age = ?, major = ? WHERE student_id = ?", (name,age,major,student_id))
     db.commit()
 
 def get_students(db):
@@ -45,7 +35,6 @@ def get_students(db):
     for student in students:
         dict_std[student[0]] = {'name': student[1], "age": student[2], "major": student[3]}
     db.commit()
-
     return dict_std
 
 def get_courses(db):
@@ -54,14 +43,22 @@ def get_courses(db):
     for course in courses:
         dict_cour[course[0]] = {'course_name': course[1], "instructor": course[2]}
     db.commit()
-
     return dict_cour
 
+def add_student_to_course(db, student_id, course_id):
+    db.execute(f'''INSERT INTO student_course(student_id, course_id)
+               VALUES  (?, ?)''', (student_id, course_id))
+    db.commit()
 
 def get_student_courses(db, course_id):
     courses_ids = db.execute(f'''SELECT student_id FROM student_course WHERE course_id == {course_id}''')
     students = [db.execute(f'''SELECT * FROM students WHERE student_id == {int(i[0])}''') for i in courses_ids]
     return students
+
+def edit_student(db, student_id, name, age, major):
+    db.execute("UPDATE students SET name = ?, age = ?, major = ? WHERE student_id = ?", (name,age,major,student_id))
+    db.commit()
+
 
 
 while True:
@@ -95,7 +92,7 @@ while True:
         case "5":
             student_id = int(input("Введіть id студента "))
             course_id = int(input("Введіть id курсу "))
-            add_to_student_course(db, student_id, course_id)
+            add_student_to_course(db, student_id, course_id)
             print("Студента успішно додано до курсу!")
         case "6":
             course_id = int(input("Введіть id курсу:"))
